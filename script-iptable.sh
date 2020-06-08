@@ -102,10 +102,9 @@ if [ $proto == "NULL" ] && [ $puerto == "NULL" ]; then
  echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -j $rule\n"
  gen=1
 else
-	if [ $proto != "NULL" ] && [ $puerto == "NULL"]; then
+	if [ $proto != "NULL" ] && [ $puerto == "NULL" ]; then
 	   echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -p $proto -j $rule\n"
 	   gen=2
-
         else
 	    echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -p $proto --dport $puerto -j $rule\n"
  	    gen=3
@@ -124,27 +123,16 @@ if [ $yesno == 1 ]; then
 	else
 	  iptables -A $chain -s $ip_source -d $ip_dest -p $proto --dport $puerto -j $rule
        fi
+  fi
 else
+  proto="NULL"
+  puerto="NULL"
   main
 fi
 }
 
 
 
-########
-#if [ $yesno == 1 ] && [ $gen == 1 ]; then
-# iptables -A $chain -s $ip_source -d $ip_dest -j $rule
-#else if [ $yesno == 1 ] && [ $gen == 2 ]; then
-# iptables -A $chain -s $ip_source -d $ip_dest -p $proto  -j $rule         
-
-#else if [ $yesno == 2 ]; then
-
-######### 
-# main
-#fi
-#fi
-#fi
-#}
       
 main()
 {
@@ -159,13 +147,13 @@ main()
 #############Menu principal############ 
  echo -e "\t---------Menú Principal---------\n
  
- 1. Iptables Services\n
- 2. Agregar una regla al firewall\n
+ 1. Agregar una regla al firewall\n
+ 2. Quitar reglas
  3. Salir"
  read opt_main
  case $opt_main in
-  1) checkstatus ;;
-  2) buildfirewall ;;
+  1) buildfirewall ;;
+  
   3) exit 0 ;;
   *) echo -e "Opcion incorrecta"
  esac
@@ -176,3 +164,8 @@ fi
 }
 main
 exit 0
+
+
+
+
+
