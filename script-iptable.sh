@@ -117,11 +117,14 @@ read yesno
 if [ $yesno == 1 ]; then
   if [ $gen == 1 ]; then
      iptables -A $chain -s $ip_source -d $ip_dest -j $rule
+     echo -e "Se agregó la regla iptables -A $chain -s $ip_source -d $ip_dest -j $rule \n" >> /etc/iptables/bitacora.log
   else
 	if [ $gen == 2 ]; then
 	  iptables -A $chain -s $ip_source -d $ip_dest -p $proto -j $rule
+	  echo -e "Se agregó la regla  iptables -A $chain -s $ip_source -d $ip_dest -p $proto -j $rule\n" >> /etc/iptables/bitacora.log
 	else
 	  iptables -A $chain -s $ip_source -d $ip_dest -p $proto --dport $puerto -j $rule
+	  echo -e "Se agregó la regla  iptables -A $chain -s $ip_source -d $ip_dest -p $proto --dport $puerto -j $rule\n" >> /etc/iptables/bitacora.log
        fi
   fi
 else
@@ -131,7 +134,27 @@ else
 fi
 }
 
+quitar_reglas()
+{  
+   echo -e "Seleccione un tipo de cadena a eliminar\n
+  1. INPUT
+  2. OUTPUT
+  3. FORWARD
+  4. PREROUTING
+  5. POSTROUTING"
+  read opt_ch
+  case $opt_ch in
+   1) chain="INPUT" ;;
+   2) chain="OUTPUT" ;;
+   3) chain="FORWARD" ;;
+   4) chain="PREROUTING" ;;
+   5) chain="POSTROUTING";;
+   *) echo -e "Opción inválida"
+  esac
+  iptables -F $chain
+  echo "Se elimino la cadena $chain \n" >> /etc/iptables/bitacora.log 
 
+}
 
       
 main()
@@ -153,7 +176,7 @@ main()
  read opt_main
  case $opt_main in
   1) buildfirewall ;;
-  
+  2) quitar_reglas ;;
   3) exit 0 ;;
   *) echo -e "Opcion incorrecta"
  esac
@@ -164,8 +187,5 @@ fi
 }
 main
 exit 0
-
-
-
 
 
