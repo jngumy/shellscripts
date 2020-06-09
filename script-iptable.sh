@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 echo -e "--------Script IPTABLES--------"
@@ -9,9 +10,7 @@ buildfirewall()
   echo -e "Seleccione un tipo de cadena\n
   1. INPUT
   2. OUTPUT
-  3. FORWARD
-  4. PREROUTING
-  5. POSTROUTING"
+  3. FORWARD"
   read opt_ch
   case $opt_ch in
    1) chain="INPUT" ;;
@@ -100,7 +99,7 @@ echo -e "\n\tPresione cualquier letra para generar la regla:"
 read temp
 echo -e "La regla generada es: \n"
 
-echo -e "$proto yyyyy $puerto \n"
+
 if [ $proto == "NULL" ] && [ $puerto == "NULL" ]; then
  echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -j $rule\n"
  gen=1
@@ -158,7 +157,7 @@ quitar_reglas()
   esac
   iptables -F $chain
   if [ $chain != "" ]; then
- 	 echo "Se eliminaron las reglas de la cadena $chain \n" >> /etc/iptables/bitacora.log 
+ 	 echo "Se eliminaron las reglas de la cadena $chain" >> /etc/iptables/bitacora.log 
   else 
 	echo "Se eliminaron las reglas de todas las cadenas (flush)" >> /etc/iptables/bitacora.log
   fi
@@ -180,12 +179,14 @@ main()
  
  1. Agregar una regla al firewall
  2. Quitar reglas
- 3. Salir"
+ 3. Ver log
+ 4. Salir"
  read opt_main
  case $opt_main in
   1) buildfirewall ;;
   2) quitar_reglas ;;
-  3) exit 0 ;;
+  3) cat /etc/iptables/bitacora.log;; 
+  4) exit 0 ;;
   *) echo -e "Opcion incorrecta"
  esac
 done
