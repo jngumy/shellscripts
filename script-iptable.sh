@@ -67,16 +67,17 @@ buildfirewall()
        4. Aplicado a un puerto especifico UDP 
        5. Sin protocolo"
        read proto_ch
+	puerto="NULL"
        case $proto_ch in
         1) proto=TCP ;;
         2) proto=UDP ;;
         3) echo -e "Ingresar el numero de puerto TCP:"
-           proto=TCP 
+           proto=TCP
            read puerto ;;
         4) echo -e "Ingresar el numero de puerto UDP:"
 	   proto=UDP
 	   read puerto;;
-	5) proto="NULL" 
+	5) proto="NULL"
 	   puerto="NULL";;
         *) echo -e "Opcion errónea"
        esac
@@ -94,21 +95,23 @@ buildfirewall()
         3) rule="DROP" ;;
         4) rule="LOG" ;;
        esac
-###################Generating the Rule####################
-echo -e "\n\tPresione cualquier regla para generar la regla:"
+###################Generando la regla####################
+echo -e "\n\tPresione cualquier letra para generar la regla:"
 read temp
 echo -e "La regla generada es: \n"
+
+echo -e "$proto yyyyy $puerto \n"
 if [ $proto == "NULL" ] && [ $puerto == "NULL" ]; then
  echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -j $rule\n"
  gen=1
 else
-	if [ $proto != "NULL" ] && [ $puerto == "NULL" ]; then
-	   echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -p $proto -j $rule\n"
-	   gen=2
-        else
-	    echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -p $proto --dport $puerto -j $rule\n"
- 	    gen=3
-	fi
+  if [ $proto != "NULL" ] && [ $puerto == "NULL" ]; then	
+     echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -p $proto -j $rule\n"
+     gen=2
+  else
+    echo -e "\niptables -A $chain -s $ip_source -d $ip_dest -p $proto --dport $puerto -j $rule\n"
+    gen=3
+fi
  
 fi 
 echo -e "\n\tDesea ingresar la regla anterior a IPTABLES? Si=1 , No=2"
@@ -141,7 +144,8 @@ quitar_reglas()
   2. OUTPUT
   3. FORWARD
   4. PREROUTING
-  5. POSTROUTING"
+  5. POSTROUTING
+  6. TODAS LAS CADENAS"
   read opt_ch
   case $opt_ch in
    1) chain="INPUT" ;;
@@ -149,11 +153,14 @@ quitar_reglas()
    3) chain="FORWARD" ;;
    4) chain="PREROUTING" ;;
    5) chain="POSTROUTING";;
+   6) chain="";;
    *) echo -e "Opción inválida"
   esac
   iptables -F $chain
-  echo "Se elimino la cadena $chain \n" >> /etc/iptables/bitacora.log 
-
+  if [ $chain != "" ]; then
+ 	 echo "Se eliminaron las reglas de la cadena $chain \n" >> /etc/iptables/bitacora.log 
+  else 
+	echo "Se eliminaron las reglas de todas las cadenas (flush)" >> /etc/iptables/bitacora.log
 }
 
       
@@ -170,7 +177,7 @@ main()
 #############Menu principal############ 
  echo -e "\t---------Menú Principal---------\n
  
- 1. Agregar una regla al firewall\n
+ 1. Agregar una regla al firewall
  2. Quitar reglas
  3. Salir"
  read opt_main
