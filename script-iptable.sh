@@ -161,6 +161,7 @@ quitar_reglas()
  	 echo "Se eliminaron las reglas de la cadena $chain \n" >> /etc/iptables/bitacora.log 
   else 
 	echo "Se eliminaron las reglas de todas las cadenas (flush)" >> /etc/iptables/bitacora.log
+  fi
 }
 
       
