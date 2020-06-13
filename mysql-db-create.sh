@@ -13,7 +13,7 @@
     read -p "Please Enter the Password for New User ($username) : " password
 
     #mysql query that will create new user, grant privileges on database with entered password
-    query="CREATE DATABASE IF NOT EXISTS $dbname; GRANT ALL PRIVILEGES ON $dbname.* TO $username@'$host' IDENTIFIED BY `$password`";
+    query="CREATE DATABASE IF NOT EXISTS $dbname; GRANT ALL PRIVILEGES ON $dbname.* TO $username@`$host` IDENTIFIED BY `$password`";
 
     #ask user to confirm all entered data
     read -p "Executing Query : $query , Please Confirm (y/n) : " confirm
