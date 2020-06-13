@@ -1,25 +1,49 @@
-#!/bin/bash
-# create random password
-PASSWDDB="$(openssl rand -base64 12)"
+    #!/bin/bash
 
-# replace "-" with "_" for database username
-MAINDB=${USER_NAME//[^a-zA-Z0-9]/_}
+    #Ask user to enter database name and save input to dbname variable
+    read -p "Please Enter Database Name:" dbname
 
-# If /root/.my.cnf exists then it won't ask for root password
-if [ -f /root/.my.cnf ]; then
+    #checking if database exist
+    mysql -Bse "USE $dbname" 2> /dev/null
 
-    mysql -e "CREATE DATABASE ${MAINDB} /*\!40100 DEFAULT CHARACTER SET utf8 */;"
-    mysql -e "CREATE USER ${MAINDB}@localhost IDENTIFIED BY '${PASSWDDB}';"
-    mysql -e "GRANT ALL PRIVILEGES ON ${MAINDB}.* TO '${MAINDB}'@'localhost';"
-    mysql -e "FLUSH PRIVILEGES;"
+    #if database exist:
+    if [ $? -eq 0 ]; then
 
-# If /root/.my.cnf doesn't exist then it'll ask for root password   
-else
-    echo "Please enter root user MySQL password!"
-    echo "Note: password will be hidden when typing"
-    read -sp rootpasswd
-    mysql -uroot -p${rootpasswd} -e "CREATE DATABASE ${MAINDB} /*\!40100 DEFAULT CHARACTER SET utf8 */;"
-    mysql -uroot -p${rootpasswd} -e "CREATE USER ${MAINDB}@localhost IDENTIFIED BY '${PASSWDDB}';"
-    mysql -uroot -p${rootpasswd} -e "GRANT ALL PRIVILEGES ON ${MAINDB}.* TO '${MAINDB}'@'localhost';"
-    mysql -uroot -p${rootpasswd} -e "FLUSH PRIVILEGES;"
-fi
+    #ask user about username
+    read -p "Please enter the username you wish to create : " username
+
+    #ask user about allowed hostname
+    read -p "Please Enter Host To Allow Access Eg: %,ip or hostname : " host
+
+    #ask user about password
+    read -p "Please Enter the Password for New User ($username) : " password
+
+    #mysql query that will create new user, grant privileges on database with entered password
+    query="GRANT ALL PRIVILEGES ON $dbname.* TO $username@'$host' IDENTIFIED BY '$password'";
+
+    #ask user to confirm all entered data
+    read -p "Executing Query : $query , Please Confirm (y/n) : " confirm
+
+    #if user confims then
+    if [ "$confirm" == 'y' ]; then
+
+    #run query
+    mysql -e "$query"
+
+    #update privileges, without this new user will be created but not active
+    mysql -e "flush privileges"
+
+    else
+
+    #if user didn't confirm entered data
+    read -p "Aborted, Press any key to continue.."
+
+    #just exit
+    fi
+
+    else
+
+    #If database not exit – warn user and exit
+    echo "The Database: $dbname does not exist, please specify a database that exists";
+
+    fi
