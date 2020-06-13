@@ -13,7 +13,7 @@
     read -p "Please Enter the Password for New User ($username) : " password
 
     #mysql query that will create new user, grant privileges on database with entered password
-    query="CREATE DATABASE IF NOT EXISTS $dbname; GRANT ALL PRIVILEGES ON $dbname.* TO $username@`$host` IDENTIFIED BY `$password`";
+    query="CREATE DATABASE IF NOT EXISTS $dbname; GRANT ALL PRIVILEGES ON $dbname.* TO $username@$host IDENTIFIED BY '$password'";
 
     #ask user to confirm all entered data
     read -p "Executing Query : $query , Please Confirm (y/n) : " confirm
@@ -21,11 +21,18 @@
     #if user confims then
     if [ "$confirm" == 'y' ]; then
 
+
+
+     mysql -uroot -p -e <<EOF
+            CREATE DATABASE \`${dbname}\`;
+            CREATE USER $username@$host IDENTIFIED BY '$password';
+            GRANT ALL PRIVILEGES ON \`${dbname}\`.* TO \`${username}\`@'localhost';
+            EOF
     #run query
-    mysql -uroot -p -e "$query"
+    #mysql -uroot -p -e "$query"
 
     #update privileges, without this new user will be created but not active
-    mysql -uroot -p -e "flush privileges"
+    #mysql -uroot -p -e "flush privileges"
 
     else
 
