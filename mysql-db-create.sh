@@ -3,12 +3,6 @@
     #Ask user to enter database name and save input to dbname variable
     read -p "Please Enter Database Name:" dbname
 
-    #checking if database exist
-    mysql -Bse "USE $dbname" 2> /dev/null
-
-    #if database exist:
-    if [ $? -eq 0 ]; then
-
     #ask user about username
     read -p "Please enter the username you wish to create : " username
 
@@ -19,7 +13,7 @@
     read -p "Please Enter the Password for New User ($username) : " password
 
     #mysql query that will create new user, grant privileges on database with entered password
-    query="GRANT ALL PRIVILEGES ON $dbname.* TO $username@'$host' IDENTIFIED BY '$password'";
+    query="CREATE DATABASE IF NOT EXISTS $dbname; GRANT ALL PRIVILEGES ON $dbname.* TO $username@'$host' IDENTIFIED BY `$password`";
 
     #ask user to confirm all entered data
     read -p "Executing Query : $query , Please Confirm (y/n) : " confirm
@@ -28,10 +22,10 @@
     if [ "$confirm" == 'y' ]; then
 
     #run query
-    mysql -e "$query"
+    mysql -uroot -p -e "$query"
 
     #update privileges, without this new user will be created but not active
-    mysql -e "flush privileges"
+    mysql -uroot -p -e "flush privileges"
 
     else
 
@@ -41,9 +35,5 @@
     #just exit
     fi
 
-    else
 
-    #If database not exit – warn user and exit
-    echo "The Database: $dbname does not exist, please specify a database that exists";
-
-    fi
+   
