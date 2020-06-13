@@ -23,11 +23,12 @@
 
 
 
-     mysql -uroot -p -e <<EOF
-            CREATE DATABASE \`${dbname}\`;
-            CREATE USER $username@$host IDENTIFIED BY '$password';
-            GRANT ALL PRIVILEGES ON \`${dbname}\`.* TO \`${username}\`@'localhost';
-            EOF
+     mysql -uroot -p <<EOF
+     CREATE DATABASE \`${dbname}\`;
+     CREATE USER $username@$host IDENTIFIED BY '$password';
+     GRANT ALL PRIVILEGES ON \`${dbname}\`.* TO \`${username}\`@'localhost';
+     EOF
+    
     #run query
     #mysql -uroot -p -e "$query"
 
