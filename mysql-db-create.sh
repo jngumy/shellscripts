@@ -1,23 +1,25 @@
 #!/bin/bash
+# create random password
+PASSWDDB="$(openssl rand -base64 12)"
 
+# replace "-" with "_" for database username
+MAINDB=${USER_NAME//[^a-zA-Z0-9]/_}
 
-ok() { echo -e '\e[32m'$1'\e[m'; } # Green
+# If /root/.my.cnf exists then it won't ask for root password
+if [ -f /root/.my.cnf ]; then
 
-EXPECTED_ARGS=3
-E_BADARGS=65
-MYSQL=`which mysql`
- 
-Q1="CREATE DATABASE IF NOT EXISTS $1;"
-Q2="GRANT ALL ON *.* TO '$2'@'localhost' IDENTIFIED BY '$3';"
-Q3="FLUSH PRIVILEGES;"
-SQL="${Q1}${Q2}${Q3}"
- 
-if [ $# -ne $EXPECTED_ARGS ]
-then
-  echo "Usage: $0 dbname dbuser dbpass"
-  exit $E_BADARGS
+    mysql -e "CREATE DATABASE ${MAINDB} /*\!40100 DEFAULT CHARACTER SET utf8 */;"
+    mysql -e "CREATE USER ${MAINDB}@localhost IDENTIFIED BY '${PASSWDDB}';"
+    mysql -e "GRANT ALL PRIVILEGES ON ${MAINDB}.* TO '${MAINDB}'@'localhost';"
+    mysql -e "FLUSH PRIVILEGES;"
+
+# If /root/.my.cnf doesn't exist then it'll ask for root password   
+else
+    echo "Please enter root user MySQL password!"
+    echo "Note: password will be hidden when typing"
+    read -sp rootpasswd
+    mysql -uroot -p${rootpasswd} -e "CREATE DATABASE ${MAINDB} /*\!40100 DEFAULT CHARACTER SET utf8 */;"
+    mysql -uroot -p${rootpasswd} -e "CREATE USER ${MAINDB}@localhost IDENTIFIED BY '${PASSWDDB}';"
+    mysql -uroot -p${rootpasswd} -e "GRANT ALL PRIVILEGES ON ${MAINDB}.* TO '${MAINDB}'@'localhost';"
+    mysql -uroot -p${rootpasswd} -e "FLUSH PRIVILEGES;"
 fi
- 
-$MYSQL -uroot -p -e "$SQL"
-
-ok "Base de datos $1 y usuario  $2 creados exitosamente con password $3"
